@@ -1,17 +1,16 @@
-----------------------------------------------------------INVENTORY TRACKING SYSTEM-------------------------------------------------------------
-
-Overview of system:
-The system is built to support the needs of retail operations across different scales. It starts with a minimal setup for a single store and gradually incorporates industry best practices, including event-driven architecture, caching, security, and high availability.
+# INVENTORY TRACKING SYSTEM
+Overview of the system:
+The system is designed to facilitate the needs of retail operations on varying scales. It begins with a lightweight setup for one store and progresses to add industry best practices, such as event-driven architecture, caching, security, and high availability.
 
 System Evolution (v1 → v3)
 
-Stage 1: Single Store
+### Stage 1: Single Store
 
-Our Goal: 
-    Build a basic local inventory tracker for a single store.
-    Data stored in a flat JSON file
+Our Goal:
+    Create a simple local inventory tracker for one store.
+Data stored in a flat JSON file
     Node.js script-based application
-    Basic operations: add products, update stock, remove items,view 
+    Basic operations: add products, update stock, remove items, view 
     No external dependencies or authentication
 
 Folder structure:
@@ -23,24 +22,24 @@ v1/
 Design Decisions and Assumptions:
     Simple logic all in one file
     Easy to run and understand
-    Assumes very low volume and single-user access
+Assumes extremely low volume and single-user usage
 
 API design:
-    function loadingInventory() {...}
-    function savingInventory(inventory) {...}
-    function addNewProduct(productName,productQuantity,productPrice) {...}
-    function stockMovements(id, change) {...}
-    function removingProduct(id) {...}
-    function viewProductInventory() {...}
+    function loadingInventory() {.}
+    function savingInventory(inventory) {.}
+    function addNewProduct(productName,productQuantity,productPrice) {.}
+    function stockMovements(id, change) {.}
+    function removingProduct(id) {.}
+    function viewProductInventory() {.}
 
-Stage 2: Multi-Store Support
+### Stage 2: Multi-Store Support
 
-Our Goal: 
-    Support multiple stores with centralized product management and authentication.
-    Migrated to PostgreSQL for structured, scalable storage
-    Introduced REST API using Express.js
-    Basic authentication system implemented
-    Each store manages its own inventory, linked to shared product catalog
+Our Goal:
+    Enable support for multiple stores with centralized product management and authentication.
+Migrated to PostgreSQL for structured, scalable storage
+Added REST API using Express.js
+Basic authentication system in place
+Each store has its own inventory, associated with a shared product catalog
 
 Folder Structure:
 v2/
@@ -52,22 +51,22 @@ v2/
 ├── index.js
 ├── inventoryDatabase.sql
 
-Design Decisions, key improvements and assumptions:
+Design Decisions, key improvements, and assumptions:
     Modular route handling
-    User and store models introduced
-    Data integrity managed via SQL schema
+    User and store models added
+Data integrity is managed via SQL schema
     Rate limiting added for basic protection
     500+ stores need to be supported
     Basic reporting requirements
     Moderate concurrent usage
 
-schema of postgres database:
-    CREATE TABLE users (...);
-    CREATE TABLE products (...);
-    CREATE TABLE stores (...);
-    CREATE TABLE inventory (...);
+schema of the PostgreSQL database:
+    CREATE TABLE users (.);
+    CREATE TABLE products (.);
+    CREATE TABLE stores (.);
+CREATE TABLE inventory (.);
 
-Introduced REST API endpoints:
+Added REST API endpoints:
     Added basic authentication
     Implemented request throttling
     Central product catalog with store-specific inventory
@@ -78,15 +77,15 @@ API design:
     app.use('/api/stores',require('./routes/storeRoutes'));
     app.use('/api/inventorystore',require('./routes/inventoryRoutes'));
 
-Stage 3: Enterprise Scale
+### Stage 3: Enterprise Scale
 
-Our Goal: 
-    Create a high-performance, scalable system capable of handling real-time inventory updates across thousands of stores.
-    Event-driven architecture using Kafka
-    Redis cache layer for frequent lookups
-    CQRS pattern adopted to separate read and write paths
-    PostgreSQL with read replicas to scale reads
-    Designed for deployment in containerized environments Docker.
+Our Goal:
+Build a high-performance, scalable system to process real-time inventory updates in thousands of stores.
+    Event-driven architecture with Kafka
+    Redis cache layer for high-frequency lookups
+    CQRS pattern implemented to isolate read and write paths
+    PostgreSQL with read replicas for scaling reads
+    Built for deployment in a containerized environment, Docker.
 
 Stage 3 Folder Structure:
 v3/
@@ -110,46 +109,45 @@ Key features:
     Stateless services and externalized configuration
     Database read replicas
     Kafka queues for decoupling services
-    Redis caching for reducing DB load
+    Redis caching for decreasing DB load
 
 2. Asynchronous Processing:
-    Kafka handles high-throughput inventory update events
-    Worker (inventoryworker.js) consumes and processes inventory changes in bulk
+    Kafka processes high-throughput inventory update events
+Worker (inventoryworker.js) reads and processes inventory updates in bulk
 
 3. Read/Write Separation:
-    PostgreSQL write and read pools managed separately in db.js
-    Reads from replicas, writes go to the primary database
+    PostgreSQL write and read pools are handled independently in db.js
+    Reads from replicas, writes to the primary database
 
 4. Redis Caching:
-    Frequently accessed product data cached via Redis
+    Most accessed product data is cached through Redis
     TTL-based cache expiration
-    Manual cache invalidation after updates
+    Manual cache invalidation upon updates
 
 5. Rate Limiting:
-    Implemented using express-rate-limit middleware
-    Configured in middleware/rateLimiter.js
+Implemented with express-rate-limit middleware
+Configured at middleware/rateLimiter.js
 
 6. Audit Logging:
-    Immutable logs for all inventory changes
-    Stored in audit_logs table via utils/auditLogs.js
+    Immutable audit logs of all changes to inventory
+    Written into audit_logs table through utils/auditLogs.js
 
 
-Decision	                                    Reason	                                                              Trade-off
-Event-Driven Design	                    Scalability,decoupling                                       Increased complexity eventual consistency
-Read/Write DB Separation	            High read throughput                                     Replication may cause temporary inconsistencies
-Redis Caching	                        Low latency access	                                                Cache invalidation complexity
-Kafka + Workers	                        Async and batch updates                                         Debugging message failures is harder
-Rate Limiting	                        Protect from abuse	                                                 Adds latency under high load
-Audit Logging	                        Compliance and traceability                                     Extra storage and write operations
-
+Decision                                    Reason                                                  Trade-off
+Event-Driven Design                    Scalability,decoupling                                    Increased complexity eventual consistency
+Read/Write DB Separation               High read throughput                                        Replication can introduce temporary inconsistencies
+Redis Caching	                      Low latency access	                                        Cache invalidation complexity
+Kafka + Workers                       Async and batch updates                                    Debugging message failures is more difficult
+Rate Limiting                         Prevents abuse                                                 Introduces latency at high load
+Audit Logging                        Traceability and compliance                                      Additional write operations and storage
 
 Assumptions:
-    Up to 10,000 stores, 100-500 products per store
-    Peak update rate: 100 inventory changes/sec
-    rateLimiter = 60* 60 * 1000 = 1 hour in ms, max = 100 which means each IP address can make up to 100 requests per hour.
-    Audit log retention: 7 years
-    Sync delay must remain under 5 seconds
-    Vault for secrets, HTTPS via load balancer, IP whitelisting enabled
+Up to 10,000 stores, 100-500 products per store
+    Maximum update rate: 100 inventory changes/sec
+    rateLimiter = 60* 60 * 1000 = 1 hour in ms, maximum = 100, which means up to 100 requests per hour per IP address.
+    Audit log retention for 7 years
+    Sync delay needs to be less than 5 seconds
+Secret vault, HTTPS through load balancer, IP whitelisting on
 
 Final Version:
-The system is production-grade and ready to support retail operations at scale. The architecture emphasizes modularity, observability, and the ability to evolve into a full microservices ecosystem.
+The system is production-ready and prepared to facilitate retail operations at scale. The architecture prioritizes modularity, observability, and the potential to grow into a complete microservices ecosystem.
