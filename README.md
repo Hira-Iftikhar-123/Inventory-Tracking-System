@@ -164,7 +164,7 @@ Configured at middleware/rateLimiter.js
 
 Decision                                    Reason                                                  Trade-off
 
-Event-Driven Design                    Scalability,decoupling                                    Increased complexity eventual consistency
+Event-Driven Design                    Scalability, decoupling                                    Increased complexity eventual consistency
 Read/Write DB Separation               High read throughput                                        Replication can introduce temporary inconsistencies
 Redis Caching	                      Low latency access	                                        Cache invalidation complexity
 Kafka + Workers                       Async and batch updates                                    Debugging message failures is more difficult
@@ -179,6 +179,17 @@ Up to 10,000 stores, 100-500 products per store
     Audit log retention for 7 years
     Sync delay needs to be less than 5 seconds
     Secret vault, HTTPS through load balancer, IP whitelisting on
+
+Tech Used:
+
+1) JavasSript.
+2) Node.js
+3) Express.js
+4) Docker.
+5) Postgres SQL.
+6) Redis/Kafka.
+7) Nginx.
+8) JWT/ bcrypt.js
 
 Final Version:
 
