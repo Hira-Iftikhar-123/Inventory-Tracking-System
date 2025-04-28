@@ -1,5 +1,6 @@
 # INVENTORY TRACKING SYSTEM
 Overview of the system:
+
 The system is designed to facilitate the needs of retail operations on varying scales. It begins with a lightweight setup for one store and progresses to add industry best practices, such as event-driven architecture, caching, security, and high availability.
 
 System Evolution (v1 → v3)
@@ -8,15 +9,19 @@ System Evolution (v1 → v3)
 
 Our Goal:
     Create a simple local inventory tracker for one store.
-Data stored in a flat JSON file
+    Data stored in a flat JSON file
     Node.js script-based application
     Basic operations: add products, update stock, remove items, view 
     No external dependencies or authentication
 
 Folder structure:
+
 v1/
+
 ├── inventory.js
+
 ├── inventory.json
+
 ├── main.js
 
 Design Decisions and Assumptions:
@@ -42,13 +47,21 @@ Basic authentication system in place
 Each store has its own inventory, associated with a shared product catalog
 
 Folder Structure:
+
 v2/
+
 ├── authentication/
+
 ├── public/
+
 ├── routes/
+
 ├── db.js
+
 ├── development.env
+
 ├── index.js
+
 ├── inventoryDatabase.sql
 
 Design Decisions, key improvements, and assumptions:
@@ -88,23 +101,39 @@ Build a high-performance, scalable system to process real-time inventory updates
     Built for deployment in a containerized environment, Docker.
 
 Stage 3 Folder Structure:
+
 v3/
+
 ├── config/
+
 ├── controllers/
+
 ├── db/
+
 ├── jobs/
+
 ├── middleware/
+
 ├── models/
+
 ├── public/
+
 ├── queues/
+
 ├── routes/
+
 ├── utils/
+
 ├── inventoryworker.js
+
 ├── docker-compose.yml
+
 ├── Dockerfile
+
 ├── index.js
 
 Key features:
+
 1. Horizontal Scalability
     Stateless services and externalized configuration
     Database read replicas
@@ -134,6 +163,7 @@ Configured at middleware/rateLimiter.js
 
 
 Decision                                    Reason                                                  Trade-off
+
 Event-Driven Design                    Scalability,decoupling                                    Increased complexity eventual consistency
 Read/Write DB Separation               High read throughput                                        Replication can introduce temporary inconsistencies
 Redis Caching	                      Low latency access	                                        Cache invalidation complexity
@@ -142,12 +172,14 @@ Rate Limiting                         Prevents abuse                            
 Audit Logging                        Traceability and compliance                                      Additional write operations and storage
 
 Assumptions:
+
 Up to 10,000 stores, 100-500 products per store
     Maximum update rate: 100 inventory changes/sec
     rateLimiter = 60* 60 * 1000 = 1 hour in ms, maximum = 100, which means up to 100 requests per hour per IP address.
     Audit log retention for 7 years
     Sync delay needs to be less than 5 seconds
-Secret vault, HTTPS through load balancer, IP whitelisting on
+    Secret vault, HTTPS through load balancer, IP whitelisting on
 
 Final Version:
+
 The system is production-ready and prepared to facilitate retail operations at scale. The architecture prioritizes modularity, observability, and the potential to grow into a complete microservices ecosystem.
